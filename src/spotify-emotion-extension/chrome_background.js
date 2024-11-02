@@ -76,14 +76,12 @@ async function captAndProcImage() {
 }
 
 
-document.getElementById('capture-button').addEventListener('click', async () => {
-    await captAndProcImage();
-});
+// document.getElementById('capture-button').addEventListener('click', async () => {
+//     await captAndProcImage();
+// });
 
 // check expression every 5 seconds
-let inve = setInterval(async () => {
-    await captAndProcImage();
-}, 5000);
+let inve = null;
 
 // Initialize the camera when the popup opens
 // initializeCamera();
@@ -130,12 +128,17 @@ function toggleMoodDetection(isActive) {
 // Function to start detecting mood (placeholder for your actual detection logic)
 function startMoodDetection() {
     console.log("Mood detection started.");
+    inve = setInterval(async () => {
+        await captAndProcImage();
+    }, 5000);
+
     // Add your mood detection logic here
 }
 
 // Function to stop detecting mood
 function stopMoodDetection() {
     console.log("Mood detection stopped.");
+    clearInterval(inve);
 }
 
 // Function to fetch current track
