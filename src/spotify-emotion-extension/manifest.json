@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Spotify Emotion-Based Extension",
+  "version": "1.0",
+  "description": "Detects emotions and recommends Spotify music based on them.",
+  "permissions": ["identity"],
+  "background": {
+    "service_worker": "chrome_background.js"
+  },
+  "action": {
+    "default_popup": "chrome_popup.html",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "oauth2": {
+    "client_id": "aab1ffc368c24a60a291c6705b89f7b1",
+    "scopes": ["user-read-playback-state", "user-modify-playback-state"]
+  }
+}
+
