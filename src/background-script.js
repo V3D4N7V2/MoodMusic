@@ -182,4 +182,4 @@ async function captAndProcImage() {
 let inve = setInterval(async () => {
     await captAndProcImage();
     console.log("Background Starting Auto Capt")
-}, 5000)
+}, 2000)
