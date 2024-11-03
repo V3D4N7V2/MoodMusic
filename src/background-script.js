@@ -109,10 +109,11 @@ async function initializeCamera() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         videoElement.srcObject = stream;
+        
         await videoElement.play();
     } catch (error) {
         console.error("Camera access error:", error);
-        // outputElement.innerText = "Error accessing the camera.";
+        outputElement.innerText = "Error accessing the camera.";
     }
 }
 
@@ -156,7 +157,7 @@ async function captAndProcImage() {
         return;
     }
     const imageData = await captureImage();
-    // outputElement.innerText = "Captured image.";
+    outputElement.innerText = "Captured image.";
     // outputElement.innerHTML += `<img src="${imageData}" />`;
     // Bundle the image data into a message
     const message = {
@@ -181,4 +182,4 @@ async function captAndProcImage() {
 let inve = setInterval(async () => {
     await captAndProcImage();
     console.log("Background Starting Auto Capt")
-}, 1000)
+}, 5000)

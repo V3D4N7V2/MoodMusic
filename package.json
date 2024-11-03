@@ -1,7 +1,7 @@
 {
-  "name": "extension",
+  "name": "MoodMusic",
   "version": "0.0.1",
-  "description": "Transformers.js | Sample browser extension",
+  "description": "MoodMusic | browser extension",
   "scripts": {
     "build": "webpack",
     "dev": "webpack --watch"

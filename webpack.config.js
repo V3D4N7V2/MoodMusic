@@ -11,6 +11,8 @@ const config = {
     mode: 'development',
     devtool: 'inline-source-map',
     entry: {
+        // background: './src/backgroundpage.html',
+
         background: './src/background.js',
         popup: './src/popup.js',
         content: './src/content.js',
@@ -18,11 +20,16 @@ const config = {
     output: {
         path: path.resolve(__dirname, 'build'),
         filename: '[name].js',
+
     },
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/popup.html',
             filename: 'popup.html',
+        }),
+        new HtmlWebpackPlugin({
+            template: './src/backgroundpage.html',
+            filename: 'backgroundpage.html',
         }),
         new CopyPlugin({
             patterns: [

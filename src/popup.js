@@ -102,9 +102,9 @@ document.getElementById('capture-button').addEventListener('click', async () => 
 });
 
 // check expression every 5 seconds
-let inve = setInterval(async () => {
-    await captAndProcImage();
-}, 5000);
+// let inve = setInterval(async () => {
+//     await captAndProcImage();
+// }, 5000);
 
 // Initialize the camera when the popup opens
 // initializeCamera();
