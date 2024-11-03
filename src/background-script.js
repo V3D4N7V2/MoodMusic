@@ -181,5 +181,5 @@ async function captAndProcImage() {
 // check expression every 5 seconds
 let inve = setInterval(async () => {
     await captAndProcImage();
-    console.log("Background Starting Auto Capt")
+    console.log("Background HTML Starting Auto Capt")
 }, 2000)

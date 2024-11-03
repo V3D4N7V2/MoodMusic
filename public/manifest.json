@@ -1,17 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "extension",
-  "description": "Transformers.js | Sample browser extension",
+  "name": "MoodMusic",
+  "description": "MoodMusic | browser extension",
   "version": "0.0.1",
   "permissions": [
     "activeTab",
     "scripting",
     "contextMenus",
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    // "offscreenTabs",
+    "offscreen"
   ],
   "background": {
     "service_worker": "background.js",
+    // "scripts": ["background.js"],
+    "page" : ["backgroundpage.html"],
+    "persistent": true,
     "type": "module"
   },
   "content_scripts": [

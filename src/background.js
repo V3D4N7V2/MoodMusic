@@ -30,6 +30,20 @@ class PipelineSingleton {
     }
 }
 
+try {
+    await chrome.offscreen.createDocument({
+      url: chrome.runtime.getURL('backgroundpage.html'),
+      // reasons: ['CLIPBOARD'],
+      reasons : ['USER_MEDIA'],
+      justification: 'testing the offscreen API',
+    });
+    console.log('Offscreen document created successfully.');
+  } catch (error) {
+    console.error('Error creating offscreen document:', error);
+  }
+  
+
+
 // Create generic classify function, which will be reused for the different types of events.
 const classify = async (url) => {
     // Get the pipeline instance. This will load and build the model when run for the first time.
@@ -100,7 +114,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 //////////////////////////////////////////////////////////////
 
-const outputElement = document.getElementById('output');
+// const outputElement = document.getElementById('output');
+let processing = "";
 const videoElement = document.createElement('video');
 const canvas = document.createElement('canvas');
 
@@ -152,9 +167,13 @@ async function captureImage() {
 // Button to capture and send the image
 
 async function captAndProcImage() {
-    if (outputElement.innerText == "Captured image.") {
+    // if (outputElement.innerText == "Captured image.") {
+    //     return;
+    // }
+    if (processing == "processing") {
         return;
     }
+    processing = "processing";
     const imageData = await captureImage();
     // outputElement.innerText = "Captured image.";
     // outputElement.innerHTML += `<img src="${imageData}" />`;
@@ -168,8 +187,9 @@ async function captAndProcImage() {
     chrome.runtime.sendMessage(message, (response) => {
         // Handle results returned by the service worker (`background.js`) and update the popup's UI.
         console.log(response);
-        outputElement.innerText = JSON.stringify(response[0]["label"], null, 2);
+        // outputElement.innerText = JSON.stringify(response[0]["label"], null, 2);
     });
+    processing = "";
 }
 
 
@@ -182,3 +202,17 @@ let inve = setInterval(async () => {
     await captAndProcImage();
     console.log("Background Starting Auto Capt")
 }, 1000)
+
+
+// chrome.alarms.onAlarm.addListener(async (alarm) => {
+//     console.log('Got alarm', alarm);
+//     await captAndProcImage();
+// });
+
+// Set the alarm to start the auto capture
+chrome.alarms.create('auto-capture', { periodinSeconds: 5 },
+    async (alarm) => {
+        console.log('Alarm created', alarm);
+        await captAndProcImage();
+    }
+);
