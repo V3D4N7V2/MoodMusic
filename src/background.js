@@ -2,6 +2,7 @@
 
 import { pipeline, env } from '@xenova/transformers';
 
+
 // Skip initial check for local models, since we are not loading any local models.
 env.allowLocalModels = false;
 
@@ -30,19 +31,65 @@ class PipelineSingleton {
     }
 }
 
-try {
-    await chrome.offscreen.createDocument({
-      url: chrome.runtime.getURL('backgroundpage.html'),
-      // reasons: ['CLIPBOARD'],
-      reasons : ['USER_MEDIA'],
-      justification: 'testing the offscreen API',
-    });
-    console.log('Offscreen document created successfully.');
-  } catch (error) {
-    console.error('Error creating offscreen document:', error);
-  }
-  
+let videoElement = null;
+let canvas = null;
+let document = null;
 
+
+// // try {
+//     document = await chrome.offscreen.createDocument({
+//       url: chrome.runtime.getURL('backgroundpage.html'),
+//       // reasons: ['CLIPBOARD'],
+//       reasons : ['USER_MEDIA'],
+//       justification: 'testing the offscreen API',
+//     });
+//     console.log('Offscreen document created successfully.', document);
+//     // videoElement = document.createElement('video');
+//     videoElement = document.querySelector('video');
+//     // canvas = document.createElement('canvas');
+//     canvas = document.querySelector('canvas');
+// //   } catch (error) {
+// //     console.error('Error creating offscreen document:', error);
+// //   }
+// //   Error creating offscreen document: TypeError: Cannot read properties of undefined (reading 'createDocument')
+
+
+
+try {
+    if (!chrome.offscreen || !chrome.offscreen.createDocument) {
+        throw new Error("Offscreen API is not available");
+    }
+
+    document = await chrome.offscreen.createDocument({
+        url: chrome.runtime.getURL('backgroundpage.html'),
+        reasons: ['USER_MEDIA'],
+        justification: 'testing the offscreen API',
+    });
+
+    console.log('Offscreen document created successfully.', document);
+
+    const videoElement = document.querySelector('video');
+    const canvas = document.querySelector('canvas');
+
+    if (!videoElement || !canvas) {
+        console.error('Video or canvas element not found in the document');
+    }
+
+} catch (error) {
+    console.error('Error creating offscreen document:', error);
+}
+
+
+function playNewVidCode(code) {
+    let newURL = "https://www.youtube.com/embed/"+ code +"?autoplay=1";
+    let iframe = document.querySelector('iframe');
+    iframe.src = newURL;
+    alert("Playing new song: " + newURL);
+    // send messaage to content.js
+    chrome.runtime.sendMessage({action: "embedVideo", url: newURL}, function(response) {
+        console.log(response);
+    });
+}
 
 // Create generic classify function, which will be reused for the different types of events.
 const classify = async (url) => {
@@ -95,6 +142,48 @@ const classify = async (url) => {
 ////////////////////// 2. Message Events /////////////////////
 // 
 // Listen for messages from the UI, process it, and send the result back.
+let songs = [["NU9JoFKlaZ0",
+"Tfmcjh09Ls8",
+"KtNYA4pAGjI",
+],[
+"mQ2-SkLfldk",
+"nspxAG12Cpc",
+"WM8bTdBs-cw",
+],[
+"kXYiU_JCYtU",
+"KUwjNBjqR-c",
+"ENXvZ9YRjbo",
+],[
+"_tSLA1Ab-kA",
+"JL3RcxHiZBY",
+"0Hegd4xNfRo",
+],[
+"QOMWkL4lO5I",
+"9fN7udMAMog",
+"ujE3DyEaIbg",
+],[
+"RFtRq6t3jOo",
+"xguIYNjYU1A",
+"9ZNkPA_zUd4",
+],[
+"apBWI6xrbLY",
+"pTdihu-mp90",
+"GJ2X9SANsME",]];
+
+let averageEmotion = {
+    
+}
+
+let label2id = {
+    "sad": 0,
+    "disgust": 1,
+    "angry": 2,
+    "neutral": 3,
+    "fear": 4,
+    "surprise": 5,
+    "happy": 6
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('sender', sender)
     if (message.action !== 'classify') return; // Ignore messages that are not meant for classification.
@@ -106,6 +195,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Send response back to UI
         sendResponse(result);
+        let nextSong = songs[label2id[result[0]["label"]]][Math.floor(Math.random()*3)];
+        console.log("Next song: ", nextSong);
+        alert("Next song: " + nextSong);
+        playNewVidCode(nextSong);
     })();
 
     // return true to indicate we will send a response asynchronously
@@ -116,8 +209,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // const outputElement = document.getElementById('output');
 let processing = "";
-const videoElement = document.createElement('video');
-const canvas = document.createElement('canvas');
+// if document exist then run the code
+
 
 // Initialize camera stream
 async function initializeCamera() {
@@ -166,6 +259,8 @@ async function captureImage() {
 
 // Button to capture and send the image
 
+
+
 async function captAndProcImage() {
     // if (outputElement.innerText == "Captured image.") {
     //     return;
@@ -187,7 +282,10 @@ async function captAndProcImage() {
     chrome.runtime.sendMessage(message, (response) => {
         // Handle results returned by the service worker (`background.js`) and update the popup's UI.
         console.log(response);
+        // items[Math.floor(Math.random()*items.length)];
+        
         // outputElement.innerText = JSON.stringify(response[0]["label"], null, 2);
+        averageEmotion[response[0]["label"]] = averageEmotion[response[0]["label"]] * 0.6 + 1;
     });
     processing = "";
 }
@@ -198,10 +296,10 @@ async function captAndProcImage() {
 // });
 
 // check expression every 5 seconds
-let inve = setInterval(async () => {
-    await captAndProcImage();
-    console.log("Background Starting Auto Capt")
-}, 1000)
+// let inve = setInterval(async () => {
+//     await captAndProcImage();
+//     console.log("Background Starting Auto Capt")
+// }, 1000)
 
 
 // chrome.alarms.onAlarm.addListener(async (alarm) => {
@@ -214,5 +312,21 @@ chrome.alarms.create('auto-capture', { periodinSeconds: 5 },
     async (alarm) => {
         console.log('Alarm created', alarm);
         await captAndProcImage();
+        // bestMatchEmotion = Object.keys(averageEmotion).reduce((a, b) => averageEmotion[a] >= averageEmotion[b] ? a : b);
+        // console.log("Best match emotion: ", bestMatchEmotion);
+        // playNewVidCode("kXYiU_JCYtU");
+    }
+);
+
+function queue_song() {
+    console.log("Queueing song")
+    bestMatchEmotion = Object.keys(averageEmotion).reduce((a, b) => averageEmotion[a] >= averageEmotion[b] ? a : b);
+    console.log("Best match emotion: ", bestMatchEmotion);
+}
+
+chrome.alarms.create('queue_songs', { periodinSeconds: 30 },
+    async (alarm) => {
+        console.log('Alarm created', alarm);
+        queue_song();
     }
 );

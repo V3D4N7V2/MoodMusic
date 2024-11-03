@@ -89,7 +89,7 @@ let inve = null;
 
 // Function to authenticate with Spotify
 function authenticateWithSpotify() {
-    const clientId = "aab1ffc368c24a60a291c6705b89f7b1"; // Replace with your actual client ID
+    const clientId = ""; // Replace with your actual client ID
     const redirectUri = `chrome-extension://${chrome.runtime.id}/callback`;
     const scopes = "user-read-playback-state user-modify-playback-state user-read-private user-read-email playlist-read-private";
 
